@@ -11,6 +11,7 @@ using FSMExpress.Logic.Util;
 using FSMExpress.PlayMaker;
 using FSMExpress.Services;
 using FSMExpress.ViewModels.Dialogs;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -20,10 +21,15 @@ using System.Threading.Tasks;
 namespace FSMExpress.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase
 {
+    private const string DEFAULT_TITLE_TEXT = "FSMExpress";
+
     private readonly AssetsManager _manager = new();
 
     private ContentCatalogData? _catalog = null;
     private readonly Dictionary<string, List<string>> _catalogDeps = [];
+
+    [ObservableProperty]
+    private string _titleText = DEFAULT_TITLE_TEXT;
 
     [ObservableProperty]
     private string? _lastOpenedPath = null;
@@ -73,7 +79,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             if (_catalog is not null)
             {
-                LoadCatalogDeps(filePath);
+                await LoadCatalogDeps(filePath);
             }
 
             var bunInst = _manager.LoadBundleFile(filePath);
@@ -398,7 +404,7 @@ public partial class MainWindowViewModel : ViewModelBase
             .Replace('\\', '/'));
     }
 
-    private void LoadCatalogDeps(string bundlePath)
+    private async Task LoadCatalogDeps(string bundlePath)
     {
         if (_catalog is null)
             return;
@@ -408,15 +414,24 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!_catalogDeps.TryGetValue(bundlePath, out var depPaths))
             return;
 
-        foreach (var depPath in depPaths)
+        for (var i = 0; i < depPaths.Count; i++)
         {
+            var depPath = depPaths[i];
             string lookupKey = AssetsManager.GetFileLookupKey(depPath);
             if (!_manager.BundleLookup.TryGetValue(lookupKey, out var bunInst))
                 bunInst = _manager.LoadBundleFile(depPath);
 
             // ignore result, we just want the bundle loaded
             LoadBundleMainFile(bunInst);
+
+            if ((i % 5) != 0)
+            {
+                TitleText = $"Loading dependencies ({Math.Ceiling((float)i / depPaths.Count * 100)}% done) {bunInst.name}";
+                await Task.Yield();
+            }
         }
+
+        TitleText = DEFAULT_TITLE_TEXT;
     }
 
     private AssetsFileInstance? LoadBundleMainFile(BundleFileInstance bunInst)

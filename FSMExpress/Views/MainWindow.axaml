@@ -12,7 +12,7 @@
         x:Class="FSMExpress.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/icon.png"
-        Title="FSMExpress">
+        Title="{Binding TitleText}">
   
   <Design.DataContext>
     <vm:MainWindowViewModel/>
