@@ -13,6 +13,9 @@ public class AfAssetNamer(AssetsManager manager, AssetsFileInstance inst)
 
         var extInfo = external.info;
         var extFileInst = external.file;
+        if (extFileInst is null)
+            return null;
+
         var extFile = extFileInst.file;
 
         var classId = extInfo.GetTypeId(extFile);
