@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <Reference Include="AddressablesTools">
-      <HintPath>..\..\..\GitRepos\AddressablesTools\AddressablesTools\bin\Release\net8.0\AddressablesTools.dll</HintPath>
+      <HintPath>..\Libs\AddressablesTools.dll</HintPath>
     </Reference>
     <Reference Include="AssetsTools.NET">
       <HintPath>..\Libs\AssetsTools.NET.dll</HintPath>
