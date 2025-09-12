@@ -2,9 +2,9 @@ name: Build FSMExpress Windows
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, skong ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, skong ]
 
 jobs:
   build:

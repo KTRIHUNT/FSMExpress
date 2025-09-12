@@ -2,9 +2,9 @@ name: Build FSMExpress Ubuntu
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, skong ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, skong ]
 
 jobs:
   build:
