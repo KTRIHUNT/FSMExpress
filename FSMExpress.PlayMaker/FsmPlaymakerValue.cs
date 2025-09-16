@@ -10,9 +10,6 @@ public class FsmPlaymakerValue(IFsmPlaymakerValuePreviewer value, string name, i
         get
         {
             var baseStr = value.ToString();
-            if (string.IsNullOrEmpty(baseStr))
-                return string.Empty;
-
             return FieldKind switch
             {
                 FsmDocumentNodeDataFieldKind.Float => baseStr + "f" + GetNameString(name),
