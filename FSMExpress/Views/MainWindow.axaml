@@ -160,9 +160,13 @@
     
     <Grid Grid.Row="1" ColumnDefinitions="*,4,300">
       
-      <Grid Grid.Column="0" RowDefinitions="30,*">
-        <TabControl
+      <Grid Grid.Column="0" RowDefinitions="*">
+        <can:FsmCanvasControl
           Grid.Row="0"
+          Document="{Binding ActiveDocument}"
+          SelectedNode="{Binding SelectedNode, Mode=TwoWay}" />
+        <TabControl
+          Grid.Row="0" VerticalAlignment="Top" BorderBrush="Transparent"
           ItemsSource="{Binding Documents}"
           SelectedItem="{Binding ActiveDocument}">
           <TabControl.ItemTemplate>
@@ -177,11 +181,11 @@
               </TextBlock>
             </DataTemplate>
           </TabControl.ItemTemplate>
+          <TabControl.ContentTemplate>
+            <!-- never display anything -->
+            <DataTemplate />
+          </TabControl.ContentTemplate>
         </TabControl>
-        <can:FsmCanvasControl
-          Grid.Row="1"
-          Document="{Binding ActiveDocument}"
-          SelectedNode="{Binding SelectedNode, Mode=TwoWay}" />
       </Grid>
       
       <GridSplitter Grid.Column="1" />
