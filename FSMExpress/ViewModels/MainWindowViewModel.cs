@@ -68,6 +68,12 @@ public partial class MainWindowViewModel : ViewModelBase
         _manager.UseQuickLookup = true;
     }
 
+    public async void Loaded()
+    {
+        // load catalog on startup if game path already set (most likely scenario)
+        await TryLoadCatalog();
+    }
+
     public async Task<string?> PickScene(string ggmPath)
     {
         var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
@@ -186,8 +192,8 @@ public partial class MainWindowViewModel : ViewModelBase
     public async void FileOpenSceneList()
     {
         string? ggmPath;
-        if (ConfigurationManager.Settings.DefaultGamePath is not null)
-            ggmPath = Path.Combine(ConfigurationManager.Settings.DefaultGamePath, "globalgamemanagers");
+        if (ConfigurationManager.Settings.DefaultGamePath is { } gamePath)
+            ggmPath = Path.Combine(gamePath, "globalgamemanagers");
         else
             ggmPath = await PickGamePathWithFile("globalgamemanagers");
 
@@ -213,8 +219,8 @@ public partial class MainWindowViewModel : ViewModelBase
     public async void FileOpenResourcesAssets()
     {
         string? resourcesPath;
-        if (ConfigurationManager.Settings.DefaultGamePath is not null)
-            resourcesPath = Path.Combine(ConfigurationManager.Settings.DefaultGamePath, "resources.assets");
+        if (ConfigurationManager.Settings.DefaultGamePath is { } gamePath)
+            resourcesPath = Path.Combine(gamePath, "resources.assets");
         else
             resourcesPath = await PickGamePathWithFile("resources.assets");
 
@@ -233,31 +239,23 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    public async void FileOpenCatalog()
+    public async Task<bool> TryLoadCatalog()
     {
-        string? catalogPath;
-        if (ConfigurationManager.Settings.DefaultGamePath is not null)
+        if (ConfigurationManager.Settings.DefaultGamePath is not { } gamePath)
+            return false;
+
+        var catalogPath = Path.Combine(gamePath, "StreamingAssets/aa/catalog.bin");
+        if (!File.Exists(catalogPath))
         {
-            catalogPath = Path.Combine(ConfigurationManager.Settings.DefaultGamePath, "StreamingAssets/aa/catalog.bin");
+            catalogPath = Path.Combine(gamePath, "StreamingAssets/aa/catalog.json");
             if (!File.Exists(catalogPath))
             {
-                catalogPath = Path.Combine(ConfigurationManager.Settings.DefaultGamePath, "StreamingAssets/aa/catalog.json");
-                if (!File.Exists(catalogPath))
-                {
-                    return;
-                }
+                return false;
             }
         }
-        else
-        {
-            catalogPath = await PickGamePathWithFile("StreamingAssets/aa/catalog.bin", "StreamingAssets/aa/catalog.json");
-        }
-
-        if (catalogPath is null || !File.Exists(catalogPath))
-            return;
 
         // read catalog
-        CatalogFileType fileType = CatalogFileType.None;
+        var fileType = CatalogFileType.None;
         using (FileStream fs = File.OpenRead(catalogPath))
         {
             fileType = AddressablesCatalogFileParser.GetCatalogFileType(fs);
@@ -272,17 +270,20 @@ public partial class MainWindowViewModel : ViewModelBase
                 _catalog = AddressablesCatalogFileParser.FromBinaryData(File.ReadAllBytes(catalogPath));
                 break;
             default:
-                await MessageBoxUtil.ShowDialog("Invalid catalog", "Couldn't detect catalog file format.");
-                return;
+                await MessageBoxUtil.ShowDialog("Invalid catalog", "Couldn't detect catalog file format. Dependencies may not load.");
+                return false;
         }
 
         // generate lookup
+        TitleText = "Loading catalog...";
+        await Task.Yield();
+
         var aaPath = Path.GetDirectoryName(catalogPath)!;
         GenerateCatalogDepLookup(_catalog, aaPath);
 
-        TitleText = $"{DEFAULT_TITLE_TEXT} (Loaded catalog)";
-        await Task.Delay(3000);
         TitleText = DEFAULT_TITLE_TEXT;
+
+        return true;
     }
 
     public async void FileOpenLast()
@@ -316,10 +317,12 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
 
         ConfigurationManager.Settings.DefaultGamePath = Path.GetDirectoryName(ggmPath);
+        await TryLoadCatalog();
     }
 
     public void CloseTab()
     {
+        SelectedNode = null;
         if (ActiveDocument is not null)
             Documents.Remove(ActiveDocument);
     }
@@ -327,6 +330,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public void CloseAllTabs()
     {
         ActiveDocument = null;
+        SelectedNode = null;
         Documents.Clear();
 
         _manager.UnloadAllAssetsFiles(true);

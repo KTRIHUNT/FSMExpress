@@ -35,6 +35,20 @@ public class FsmCanvasControl : Grid
         {
             SetAndRaise(DocumentProperty, ref _document, value);
             RebuildGraph();
+
+            // reselect node if we're reopening a document
+            // that had a node previously selected
+            if (value is { } doc)
+            {
+                foreach (var node in doc.Nodes)
+                {
+                    if (node.IsSelected)
+                    {
+                        SelectedNode = node;
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -44,7 +58,11 @@ public class FsmCanvasControl : Grid
         set
         {
             if (_selectedNode is not null)
-                _selectedNode.IsSelected = false;
+            {
+                // don't deselect node if we're moving away from this document
+                if (Document is null || Document.Nodes.Contains(_selectedNode))
+                    _selectedNode.IsSelected = false;
+            }
 
             SetAndRaise(SelectedNodeProperty, ref _selectedNode, value);
 
