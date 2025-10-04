@@ -6,6 +6,7 @@
         xmlns:sid="using:FSMExpress.Controls.Sidebar"
         xmlns:fcd="using:FSMExpress.Common.Document"
         xmlns:cnf="using:FSMExpress.Logic.Configuration"
+        xmlns:lfsm="using:FSMExpress.Logic.Fsm"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -25,9 +26,9 @@
 
   <!-- this all needs to move with the ItemsControl sidebar -->
   <Window.DataTemplates>
-    <DataTemplate DataType="{x:Type fcd:FsmDocumentNodeClassField}">
+    <DataTemplate DataType="{x:Type lfsm:FsmDocumentNodeIndexedClassField}">
       <TextBlock
-        Text="{Binding TypeRef.ClassName}"
+        Text="{Binding DisplayText}"
         HorizontalAlignment="Stretch"
         FontWeight="Bold"
         Padding="5"
@@ -75,29 +76,6 @@
             </MultiBinding>
           </TextBox.Foreground>
         </TextBox>
-        <!-- too much trouble to get multicolored selectable text working :( -->
-        <!--<Border
-          BorderBrush="{StaticResource ThemeBorderMidBrush}"
-          BorderThickness="1"
-          Grid.Column="1" Height="28">
-          <ScrollViewer
-            HorizontalScrollBarVisibility="Hidden"
-            VerticalScrollBarVisibility="Disabled">
-            <SelectableTextBlock
-              HorizontalAlignment="Left" TextWrapping="NoWrap"
-              Background="{DynamicResource ThemeBackgroundBrush}"
-              Padding="5">
-              <Run Text="{Binding Value.DisplayString}">
-                <Run.Foreground>
-                  <MultiBinding Converter="{StaticResource TypeColorConverter}" ConverterParameter="Value">
-                    <Binding Path="Value.FieldKind" />
-                    <DynamicResource ResourceKey="TypeTextTheme" />
-                  </MultiBinding>
-                </Run.Foreground>
-              </Run>
-            </SelectableTextBlock>
-          </ScrollViewer>
-        </Border>-->
       </Grid>
     </DataTemplate>
     
@@ -194,7 +172,7 @@
         <TabItem Header="State">
           <!-- todo: move to own control -->
           <ScrollViewer>
-            <ItemsControl ItemsSource="{Binding SelectedNode.Fields}" />
+            <ItemsControl ItemsSource="{Binding FieldsIndexed}" />
           </ScrollViewer>
         </TabItem>
         <TabItem Header="Events">

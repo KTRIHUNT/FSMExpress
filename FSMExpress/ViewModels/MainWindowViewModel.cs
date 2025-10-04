@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using FSMExpress.Common.Assets;
 using FSMExpress.Common.Document;
 using FSMExpress.Logic.Configuration;
+using FSMExpress.Logic.Fsm;
 using FSMExpress.Logic.Util;
 using FSMExpress.PlayMaker;
 using FSMExpress.Services;
@@ -28,6 +29,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private ContentCatalogData? _catalog = null;
     private readonly Dictionary<string, List<string>> _catalogDeps = [];
 
+    public ObservableCollection<FsmDocument> Documents { get; set; } = [];
+
     [ObservableProperty]
     private string _titleText = DEFAULT_TITLE_TEXT;
 
@@ -38,10 +41,25 @@ public partial class MainWindowViewModel : ViewModelBase
     private FsmDocument? _activeDocument = null;
 
     [ObservableProperty]
-    private ObservableCollection<FsmDocument> _documents = [];
-
-    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FieldsIndexed))]
     public FsmDocumentNode? _selectedNode = null;
+
+    public IEnumerable<FsmDocumentNodeField> FieldsIndexed
+    {
+        get
+        {
+            if (SelectedNode is null)
+                yield break;
+
+            int index = 0;
+            foreach (var field in SelectedNode.Fields)
+            {
+                yield return field is FsmDocumentNodeClassField classField
+                    ? new FsmDocumentNodeIndexedClassField(classField, index++)
+                    : field;
+            }
+        }
+    }
 
     public MainWindowViewModel()
     {
