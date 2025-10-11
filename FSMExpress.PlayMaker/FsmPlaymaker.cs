@@ -199,7 +199,7 @@ public class FsmPlaymaker : IFsmMonoBehaviour
     {
         if (values.Count > 0)
         {
-            AddVariableClassToDoc(doc, "FsmMaterial", PM_NAMESPACE, PM_ASSEMBLY);
+            AddVariableClassToDoc(doc, name, PM_NAMESPACE, PM_ASSEMBLY);
             foreach (var variable in values)
             {
                 var docVarVal = new FsmPlaymakerValue(variable, string.Empty, 0);
