@@ -6,12 +6,12 @@ public class AfAssetField(AssetTypeValueField valueField, AfAssetNamer namer) : 
 {
     public bool Exists(string name)
     {
-        return valueField[name].IsDummy;
+        return !valueField[name].IsDummy;
     }
 
     public bool Exists(int index)
     {
-        return valueField[index].IsDummy;
+        return !valueField[index].IsDummy;
     }
 
     public IAssetField GetField(string name)

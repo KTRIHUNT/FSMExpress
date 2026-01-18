@@ -10,15 +10,21 @@ public class PathUtils
         {
             string dir = Path.GetDirectoryName(fileInst.parentBundle.path)!;
 
-            // addressables
-            string? upDir = Path.GetDirectoryName(dir);
-            string? upDir2 = Path.GetDirectoryName(upDir ?? string.Empty);
-            if (upDir != null && upDir2 != null)
+            // addressables (this may be a bit slow but I doubt we're calling it all that much)
+            string? currentDir = dir;
+            while (currentDir != null)
             {
-                if (Path.GetFileName(upDir) == "aa" && Path.GetFileName(upDir2) == "StreamingAssets")
+                string? parentDir = Path.GetDirectoryName(currentDir);
+                if (parentDir != null)
                 {
-                    dir = Path.GetDirectoryName(upDir2)!;
+                    if (Path.GetFileName(currentDir) == "aa" && Path.GetFileName(parentDir) == "StreamingAssets")
+                    {
+                        // found the aa folder under StreamingAssets, return the _Data folder
+                        dir = Path.GetDirectoryName(parentDir)!;
+                        break;
+                    }
                 }
+                currentDir = parentDir;
             }
 
             return dir;

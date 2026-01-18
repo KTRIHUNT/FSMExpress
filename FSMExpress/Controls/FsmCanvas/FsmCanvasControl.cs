@@ -13,7 +13,6 @@ public class FsmCanvasControl : Grid
     private static readonly Color BLACK_GRAY_COLOR = Color.FromRgb(32, 32, 32);
     private static readonly Color BLACK_SOFT_COLOR = Color.FromRgb(50, 50, 50);
     private static readonly Color WHITE_GRAY_COLOR = Color.FromRgb(222, 222, 222);
-    private static readonly FontFamily DEFAULT_FONT = new("Segoe UI Bold");
 
     private readonly Canvas _can;
     private readonly MatrixTransform _mt;
@@ -35,6 +34,20 @@ public class FsmCanvasControl : Grid
         {
             SetAndRaise(DocumentProperty, ref _document, value);
             RebuildGraph();
+
+            // reselect node if we're reopening a document
+            // that had a node previously selected
+            if (value is { } doc)
+            {
+                foreach (var node in doc.Nodes)
+                {
+                    if (node.IsSelected)
+                    {
+                        SelectedNode = node;
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -44,7 +57,11 @@ public class FsmCanvasControl : Grid
         set
         {
             if (_selectedNode is not null)
-                _selectedNode.IsSelected = false;
+            {
+                // don't deselect node if we're moving away from this document
+                if (Document is null || Document.Nodes.Contains(_selectedNode))
+                    _selectedNode.IsSelected = false;
+            }
 
             SetAndRaise(SelectedNodeProperty, ref _selectedNode, value);
 
@@ -153,7 +170,6 @@ public class FsmCanvasControl : Grid
                 Foreground = Brushes.White,
                 Background = titleBrush,
                 Text = node.Name,
-                FontFamily = DEFAULT_FONT,
                 FontWeight = FontWeight.Bold,
                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
                 TextAlignment = TextAlignment.Center
@@ -162,7 +178,7 @@ public class FsmCanvasControl : Grid
             if (!node.IsGlobal)
             {
                 // todo: this is yucky. maybe we should calculate it from the control itself?
-                float ypos = 27f;
+                float ypos = 25f;
 
                 foreach (var transition in node.Transitions)
                 {
@@ -171,7 +187,8 @@ public class FsmCanvasControl : Grid
                         Foreground = Brushes.DimGray,
                         Background = transBrush,
                         Text = transition.Name,
-                        FontFamily = DEFAULT_FONT,
+                        FontWeight = FontWeight.Bold,
+                        Height = 16,
                         HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
                         TextAlignment = TextAlignment.Center
                     });

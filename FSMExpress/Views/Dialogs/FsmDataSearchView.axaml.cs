@@ -4,17 +4,17 @@ using Avalonia.Interactivity;
 using FSMExpress.ViewModels.Dialogs;
 
 namespace FSMExpress.Views.Dialogs;
-public partial class FsmSelectorView : UserControl
+public partial class FsmDataSearchView : UserControl
 {
-    public FsmSelectorView()
+    public FsmDataSearchView()
     {
         InitializeComponent();
-        Loaded += FsmSelectorView_Loaded;
+        Loaded += FsmDataSearchView_Loaded;
     }
 
-    private void FsmSelectorView_Loaded(object? sender, RoutedEventArgs e)
+    private void FsmDataSearchView_Loaded(object? sender, RoutedEventArgs e)
     {
-        searchTextBox.Focus();
+        //searchTextBox.Focus();
     }
 
     private void MainGrid_KeyDown(object? sender, KeyEventArgs e)

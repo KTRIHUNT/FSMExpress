@@ -20,4 +20,9 @@ public class FsmEnum : NamedVariable, IFsmPlaymakerValuePreviewer
         EnumName = field.GetValue<string>("enumName");
         IntValue = field.GetValue<int>("intValue");
     }
+
+    public override string ToString()
+    {
+        return $"{EnumName}.{IntValue}";
+    }
 }

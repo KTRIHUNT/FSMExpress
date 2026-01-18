@@ -37,12 +37,12 @@ internal sealed class Program
                 // can't trust the process to be stable enough
                 // to even show an avalonia messagebox, do hacky
                 // vbscript instead
-                var mshtaArgs = "vbscript:Execute(\"CreateObject(\"\"WScript.Shell\"\").Popup CreateObject(\"\"Scripting.FileSystemObject\"\").OpenTextFile(\"\"fsmexpcrash.log\"\", 1).ReadAll,,\"\"uabea crash exception (please report this crash with fsmexpcrash.log)\"\" :close\")";
+                var mshtaArgs = "vbscript:Execute(\"CreateObject(\"\"WScript.Shell\"\").Popup CreateObject(\"\"Scripting.FileSystemObject\"\").OpenTextFile(\"\"fsmexpcrash.log\"\", 1).ReadAll,,\"\"fsmexp crash exception (please report this crash with fsmexpcrash.log)\"\" :close\")";
                 Process.Start(new ProcessStartInfo("mshta", mshtaArgs));
             }
             else
             {
-                Console.WriteLine("uabea crash exception (please report this crash with fsmexpcrash.log)");
+                Console.WriteLine("fsmexp crash exception (please report this crash with fsmexpcrash.log)");
                 Console.WriteLine(ex.ToString());
             }
         }

@@ -6,13 +6,14 @@
         xmlns:sid="using:FSMExpress.Controls.Sidebar"
         xmlns:fcd="using:FSMExpress.Common.Document"
         xmlns:cnf="using:FSMExpress.Logic.Configuration"
+        xmlns:lfsm="using:FSMExpress.Logic.Fsm"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="FSMExpress.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/icon.png"
-        Title="FSMExpress">
+        Title="{Binding TitleText}">
   
   <Design.DataContext>
     <vm:MainWindowViewModel/>
@@ -25,6 +26,23 @@
 
   <!-- this all needs to move with the ItemsControl sidebar -->
   <Window.DataTemplates>
+    <DataTemplate DataType="{x:Type lfsm:FsmDocumentNodeIndexedClassField}">
+      <TextBlock
+        Text="{Binding DisplayText}"
+        HorizontalAlignment="Stretch"
+        FontWeight="Bold"
+        Padding="5"
+        Height="28">
+        <TextBlock.Background>
+          <MultiBinding Converter="{StaticResource BoolObjectConverter}">
+            <Binding Path="IsEnabled" />
+            <DynamicResource ResourceKey="ListHeaderNormal" />
+            <DynamicResource ResourceKey="ListHeaderDisabled" />
+          </MultiBinding>
+        </TextBlock.Background>
+      </TextBlock>
+    </DataTemplate>
+    
     <DataTemplate DataType="{x:Type fcd:FsmDocumentNodeClassField}">
       <TextBlock
         Text="{Binding TypeRef.ClassName}"
@@ -75,29 +93,6 @@
             </MultiBinding>
           </TextBox.Foreground>
         </TextBox>
-        <!-- too much trouble to get multicolored selectable text working :( -->
-        <!--<Border
-          BorderBrush="{StaticResource ThemeBorderMidBrush}"
-          BorderThickness="1"
-          Grid.Column="1" Height="28">
-          <ScrollViewer
-            HorizontalScrollBarVisibility="Hidden"
-            VerticalScrollBarVisibility="Disabled">
-            <SelectableTextBlock
-              HorizontalAlignment="Left" TextWrapping="NoWrap"
-              Background="{DynamicResource ThemeBackgroundBrush}"
-              Padding="5">
-              <Run Text="{Binding Value.DisplayString}">
-                <Run.Foreground>
-                  <MultiBinding Converter="{StaticResource TypeColorConverter}" ConverterParameter="Value">
-                    <Binding Path="Value.FieldKind" />
-                    <DynamicResource ResourceKey="TypeTextTheme" />
-                  </MultiBinding>
-                </Run.Foreground>
-              </Run>
-            </SelectableTextBlock>
-          </ScrollViewer>
-        </Border>-->
       </Grid>
     </DataTemplate>
     
@@ -157,9 +152,13 @@
     
     <Grid Grid.Row="1" ColumnDefinitions="*,4,300">
       
-      <Grid Grid.Column="0" RowDefinitions="30,*">
-        <TabControl
+      <Grid Grid.Column="0" RowDefinitions="*">
+        <can:FsmCanvasControl
           Grid.Row="0"
+          Document="{Binding ActiveDocument}"
+          SelectedNode="{Binding SelectedNode, Mode=TwoWay}" />
+        <TabControl
+          Grid.Row="0" VerticalAlignment="Top" BorderBrush="Transparent"
           ItemsSource="{Binding Documents}"
           SelectedItem="{Binding ActiveDocument}">
           <TabControl.ItemTemplate>
@@ -174,11 +173,11 @@
               </TextBlock>
             </DataTemplate>
           </TabControl.ItemTemplate>
+          <TabControl.ContentTemplate>
+            <!-- never display anything -->
+            <DataTemplate />
+          </TabControl.ContentTemplate>
         </TabControl>
-        <can:FsmCanvasControl
-          Grid.Row="1"
-          Document="{Binding ActiveDocument}"
-          SelectedNode="{Binding SelectedNode, Mode=TwoWay}" />
       </Grid>
       
       <GridSplitter Grid.Column="1" />
@@ -187,7 +186,7 @@
         <TabItem Header="State">
           <!-- todo: move to own control -->
           <ScrollViewer>
-            <ItemsControl ItemsSource="{Binding SelectedNode.Fields}" />
+            <ItemsControl ItemsSource="{Binding FieldsIndexed}" />
           </ScrollViewer>
         </TabItem>
         <TabItem Header="Events">

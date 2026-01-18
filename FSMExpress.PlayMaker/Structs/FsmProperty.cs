@@ -14,7 +14,7 @@ public class FsmProperty : IFsmPlaymakerValuePreviewer
     public FsmString StringParameter { get; set; }
     public FsmVector2 Vector2Parameter { get; set; }
     public FsmVector3 Vector3Parameter { get; set; }
-    public FsmRect RectParamater { get; set; }
+    public FsmRect RectParamater { get; set; } // this is the correct spelling for this field
     public FsmQuaternion QuaternionParameter { get; set; }
     public FsmObject ObjectParameter { get; set; }
     public FsmObject MaterialParameter { get; set; }
@@ -70,5 +70,44 @@ public class FsmProperty : IFsmPlaymakerValuePreviewer
         EnumParameter = new FsmEnum(field.GetField("EnumParameter"));
         ArrayParameter = new FsmArray(field.GetField("ArrayParameter"));
         SetProperty = field.GetValue<bool>("setProperty");
+    }
+
+    public override string ToString()
+    {
+        string destVarName;
+        if (BoolParameter.UseVariable)
+            destVarName = BoolParameter.Name;
+        else if (FloatParameter.UseVariable)
+            destVarName = FloatParameter.Name;
+        else if (IntParameter.UseVariable)
+            destVarName = IntParameter.Name;
+        else if (GameObjectParameter.UseVariable)
+            destVarName = GameObjectParameter.Name;
+        else if (StringParameter.UseVariable)
+            destVarName = StringParameter.Name;
+        else if (Vector2Parameter.UseVariable)
+            destVarName = Vector2Parameter.Name;
+        else if (Vector3Parameter.UseVariable)
+            destVarName = Vector3Parameter.Name;
+        else if (RectParamater.UseVariable)
+            destVarName = RectParamater.Name;
+        else if (QuaternionParameter.UseVariable)
+            destVarName = QuaternionParameter.Name;
+        else if (ObjectParameter.UseVariable)
+            destVarName = ObjectParameter.Name;
+        else if (MaterialParameter.UseVariable)
+            destVarName = MaterialParameter.Name;
+        else if (TextureParameter.UseVariable)
+            destVarName = TextureParameter.Name;
+        else if (ColorParameter.UseVariable)
+            destVarName = ColorParameter.Name;
+        else if (EnumParameter.UseVariable)
+            destVarName = EnumParameter.Name;
+        else if (ArrayParameter.UseVariable)
+            destVarName = ArrayParameter.Name;
+        else
+            destVarName = "[unknown var dest]";
+
+        return $"{TargetTypeName}.{PropertyName} => ({destVarName})";
     }
 }
